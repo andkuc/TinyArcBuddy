@@ -4,15 +4,15 @@
 
 An open-source, ATtiny85-based handheld console designed as a dual-purpose platform: a low-level embedded engineering reference and a hands-on STEM educational tool. It is based on the ATtiny85 Tiny Arcade Console by lonesoulsurfer (https://www.instructables.com/Tiny-Arcade-Game-Attiny85).
 
-Developed for STEM workshops at **HTL Kaindorf an der Sulm** (Austria), this project aims to demystify hardware assembly and firmware development for 8th-grade middle school students.
+Developed for STEM workshops, this project aims to demystify hardware assembly and firmware development for 8th-grade middle school students.
 
 ---
 
 ## 🧠 Pedagogical Approach
 
-The Tiny Arc Buddy is engineered to provide a frictionless, high-impact introduction to STEM for young female students without requiring prior programming or electronics experience.
+The Tiny Arc Buddy is engineered to provide a frictionless, high-impact introduction to STEM for young students without requiring prior programming or electronics experience.
 
-* **Peer-to-Peer Mentoring:** The workshop utilizes a tiered mentoring model. Middle school girls act as "Lead Engineers" executing the hands-on work, while older HTL students serve as "Senior Advisors," fostering a collaborative, non-intimidating learning environment.
+* **Peer-to-Peer Mentoring:** The workshop utilizes a tiered mentoring model. Middle school students act as "Lead Engineers" executing the hands-on work, while older HTL students serve as "Senior Advisors," fostering a collaborative, non-intimidating learning environment.
 * **Tangible Milestones:** Hardware assembly is gamified into structural "Levels" (low-profile to high-profile components). This prevents cognitive overload and provides continuous positive reinforcement.
 * **Immediate Feedback Loop:** The firmware is structured with a dedicated `ZONE 1: APP SETTINGS`. Students modify straightforward C++ macros (e.g., `#define OWNER_NAME "ANNA"`) and immediately see their changes compiled and rendered on the OLED. This bridges the abstract code-to-hardware gap without bogging them down in syntax errors.
 * **Curriculum Alignment:** The software payloads (such as the Affine Linear Function Explorer) directly correlate with the Austrian 8th-grade mathematics and physics curricula, demonstrating the practical application of theoretical school concepts.
@@ -96,3 +96,21 @@ Standard graphics libraries (like Adafruit_SSD1306) require a 1 KB screen buffer
 │   ├── AssortmentBox.pdf       # Kit BOM and assembly order (labels for an assortment box)
 │   └── SetupGuide.docx         # Toolchain & driver setup
 └── README.md
+
+## 📜 Copyright & Licensing
+
+The **Tiny Arc Buddy** is an open educational project developed by Andreas Kucher. To ensure maximum freedom for educators, students, and makers, this repository uses three distinct open-source licenses tailored to different types of content:
+
+### 💻 Software: MIT License
+All firmware and source code (`.ino`, `.cpp`, `.h` files) within this repository are released under the **MIT License**.
+*Copyright (c) 2026 Andreas Kucher*
+
+You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, provided that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
+
+### 🛠️ Hardware: CERN-OHL-P
+All hardware design files, including schematics, PCB layouts, and Gerber files, are licensed under the **CERN Open Hardware Licence Version 2 - Permissive (CERN-OHL-P)**. 
+You are free to manufacture, modify, and distribute the physical hardware, provided proper attribution is given to the original designers.
+
+### 📖 Documentation: CC BY 4.0
+All educational materials, tutorials, and assembly guides (including the *Developer's Handbook*) are licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**. 
+You are free to share, translate, and adapt the material for any purpose—even commercially—as long as you give appropriate credit to Andreas Kucher.
