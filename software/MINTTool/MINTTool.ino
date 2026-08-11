@@ -1,4 +1,38 @@
 /*
+ * =========================================================================================
+ * TINY ARC BUDDY - EDUCATIONAL EMBEDDED PLATFORM
+ * =========================================================================================
+ * * Copyright (c) 2026 Andreas Kucher
+ * * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * * -----------------------------------------------------------------------------------------
+ * ACKNOWLEDGMENTS & DISCLAIMER
+ * -----------------------------------------------------------------------------------------
+ * This project was designed for STEM education workshops.
+ * * Core hardware architecture derived from:
+ * "Tiny Arcade Game (ATtiny85)" - Instructables
+ * * Hardware support via:
+ * ATTinyCore by Spence Konde (https://github.com/SpenceKonde/ATTinyCore)
+ * * Disclaimer: The software payloads in this repository were heavily optimized 
+ * for ATtiny85 SRAM/Flash constraints with the assistance of AI (Google Gemini). 
+ * They have not undergone exhaustive edge-case testing. Use for educational purposes.
+ * =========================================================================================
+ */
+
+/*
  * ==============================================================================
  * TINY ARC BUDDY - GENIUS EDITION (Flicker-Free, Live Equations)
  * ==============================================================================
@@ -202,6 +236,7 @@ void loop() {
   if (appState == 0) {
     oled_clear();
     drawLargeSprite(48, 2, htl_logo, 32, 4); 
+    drawString(37, 7, "MINT Tool");
     delay(3000); 
     appState = 1; needsRedraw = true; oled_clear();
   }
@@ -219,7 +254,7 @@ void loop() {
     }
     if (readFire()) {
       beep(1000, 100); appState = 2; needsRedraw = true; oled_clear();
-      while(readFire()){} 
+      while(readFire()){ delay(10); }
     }
   }
 
@@ -407,57 +442,96 @@ void loop() {
     } fireWasPressed = readFire();
   }
 
-  // ----------------------------------------------------------------
+ // ----------------------------------------------------------------
   // STATE 6: THE MATH ENGINE (Output)
   // ----------------------------------------------------------------
   if (appState == 6) {
     if (needsRedraw) {
       drawString(0, 0, "--- RESULT ---");
-
       long res1 = 0, res2 = 0;
       bool hasRes2 = false, error = false;
 
-      // GEOMETRY
-      if (activeTool == 0) { res1 = (314L * inputVals[0] * inputVals[0] * inputVals[1]) / 100L; drawString(5, 3, "Vol V ="); } 
-      else if (activeTool == 1) { res1 = isqrt((long)inputVals[0]*inputVals[0] + (long)inputVals[1]*inputVals[1]) * 100L; drawString(5, 3, "Side c ="); } 
-      else if (activeTool == 2) { res1 = (314L * inputVals[0] * inputVals[0]) / 100L; drawString(5, 3, "Area A ="); } 
-      else if (activeTool == 3) { res1 = (419L * inputVals[0] * inputVals[0] * inputVals[0]) / 100L; drawString(5, 3, "Vol V ="); } 
-      else if (activeTool == 4) { res1 = (long)inputVals[0] * inputVals[1] * 100L; drawString(5, 3, "Area A ="); } 
+      // --- 1. GEOMETRY ---
+      if (activeTool == 0) { 
+        // Cylinder Vol: V = pi * r^2 * h (Scaled 3.14 -> 314L)
+        res1 = 314L * inputVals[0] * inputVals[0] * inputVals[1];
+        drawString(5, 3, "Vol V ="); 
+      } 
+      else if (activeTool == 1) { 
+        // Hypotenuse: c = sqrt(a^2 + b^2). 
+        // Scale by 10000 BEFORE the root to preserve 2 decimal places!
+        res1 = isqrt(((long)inputVals[0]*inputVals[0] + (long)inputVals[1]*inputVals[1]) * 10000L);
+        drawString(5, 3, "Side c ="); 
+      } 
+      else if (activeTool == 2) { 
+        // Circle Area: A = pi * r^2
+        res1 = 314L * inputVals[0] * inputVals[0];
+        drawString(5, 3, "Area A ="); 
+      } 
+      else if (activeTool == 3) { 
+        // Sphere Vol: V = 4/3 * pi * r^3 (4/3 * 3.14 = 4.1887 -> 419L)
+        res1 = 419L * inputVals[0] * inputVals[0] * inputVals[0];
+        drawString(5, 3, "Vol V ="); 
+      } 
+      else if (activeTool == 4) { 
+        // Rect Area: A = a * b (Scale output by 100L)
+        res1 = (long)inputVals[0] * inputVals[1] * 100L;
+        drawString(5, 3, "Area A ="); 
+      } 
       
-      // PHYSICS
+      // --- 2. PHYSICS ---
       else if (activeTool == 5) { 
-        if (inputVals[1] == 0) error = true; else res1 = ((long)inputVals[0] * 100L) / inputVals[1];
+        if (inputVals[1] == 0) error = true;
+        else res1 = ((long)inputVals[0] * 100L) / inputVals[1];
         drawString(5, 3, "Speed v =");
       } 
-      else if (activeTool == 6) { res1 = (long)inputVals[0] * inputVals[1] * 100L; drawString(5, 3, "Volt U ="); } 
+      else if (activeTool == 6) { 
+        res1 = (long)inputVals[0] * inputVals[1] * 100L;
+        drawString(5, 3, "Volt U ="); 
+      } 
       else if (activeTool == 7) { 
-        if (inputVals[1] == 0) error = true; else res1 = ((long)inputVals[0] * 100L) / inputVals[1];
+        if (inputVals[1] == 0) error = true;
+        else res1 = ((long)inputVals[0] * 100L) / inputVals[1];
         drawString(5, 3, "Dens. p =");
       } 
-      else if (activeTool == 8) { res1 = (long)inputVals[0] * inputVals[1] * 100L; drawString(5, 3, "Work W ="); } 
-      else if (activeTool == 9) { res1 = (50L * inputVals[0] * inputVals[1] * inputVals[1]) / 100L; drawString(5, 3, "Energy E="); } 
+      else if (activeTool == 8) { 
+        res1 = (long)inputVals[0] * inputVals[1] * 100L;
+        drawString(5, 3, "Work W ="); 
+      } 
+      else if (activeTool == 9) { 
+        // Kinetic Energy: E = 0.5 * m * v^2 (0.5 scaled is 50L)
+        res1 = 50L * inputVals[0] * inputVals[1] * inputVals[1];
+        drawString(5, 3, "Energy E="); 
+      } 
       
-      // ALGEBRA
+      // --- 3. ALGEBRA ---
       else if (activeTool == 10) { 
         long D = (long)inputVals[0]*inputVals[4] - (long)inputVals[3]*inputVals[1];
         if (D == 0) error = true;
         else {
           long Dx = (long)inputVals[2]*inputVals[4] - (long)inputVals[5]*inputVals[1];
           long Dy = (long)inputVals[0]*inputVals[5] - (long)inputVals[3]*inputVals[2];
-          res1 = (Dx * 100L) / D; res2 = (Dy * 100L) / D; hasRes2 = true;
+          res1 = (Dx * 100L) / D; res2 = (Dy * 100L) / D;
+          hasRes2 = true;
           drawString(10, 2, "X = "); drawString(10, 4, "Y = ");
         }
       }
-      else if (activeTool == 11) { res1 = (long)inputVals[0] * inputVals[1]; drawString(5, 3, "Result ="); }
+      else if (activeTool == 11) { 
+        // X% of Y = (X * Y) / 100. Because we want it scaled by 100, we simply multiply.
+        res1 = (long)inputVals[0] * inputVals[1];
+        drawString(5, 3, "Result ="); 
+      }
       else if (activeTool == 12) { 
-        if (inputVals[1] == 0) error = true; else res1 = ((long)inputVals[0] * 100L) / inputVals[1];
+        if (inputVals[1] == 0) error = true;
+        else res1 = ((long)inputVals[0] * 100L) / inputVals[1];
         drawString(5, 3, "Decimal =");
       }
       else if (activeTool == 13) {
         long disc = (long)inputVals[1]*inputVals[1] - (4L*inputVals[0]*inputVals[2]);
-        if (disc < 0 || inputVals[0] == 0) error = true; 
+        if (disc < 0 || inputVals[0] == 0) error = true;
         else {
-          long root = isqrt(disc) * 100L;
+          // Scale discriminant by 10,000 BEFORE the root to preserve 2 decimal places
+          long root = isqrt(disc * 10000L); 
           res1 = ((-inputVals[1]*100L) + root) / (2L * inputVals[0]);
           res2 = ((-inputVals[1]*100L) - root) / (2L * inputVals[0]);
           hasRes2 = true;
@@ -467,13 +541,14 @@ void loop() {
 
       // --- OUTPUT PRINTING ---
       if (error) {
-        drawString(10, 3, "MATH ERROR!"); drawString(10, 4, "(DIV BY ZERO/NEG)");
+        drawString(10, 3, "MATH ERROR!");
+        drawString(10, 4, "(DIV BY ZERO/NEG)");
       } else {
         if (hasRes2) {
-          drawFixedPoint(40, 2, res1); drawFixedPoint(40, 4, res2);
+          drawFixedPoint(40, 2, res1);
+          drawFixedPoint(40, 4, res2);
         } else {
           drawFixedPoint(65, 3, res1);
-          
           if (activeUnitGroup != 3) {
             const char* const* gArray = (const char* const*)pgm_read_word(&unitGroups[activeUnitGroup]);
             const char* uStr = (const char*)pgm_read_word(&gArray[selectedUnitIdx]);
@@ -494,8 +569,9 @@ void loop() {
     }
 
     if (readFire()) {
-      beep(1000, 50); appState = 2; needsRedraw = true; oled_clear();
-      while(readFire()){} 
+      beep(1000, 50); appState = 2;
+      needsRedraw = true; oled_clear();
+      while(readFire()){ delay(10); }
     }
   }
 }

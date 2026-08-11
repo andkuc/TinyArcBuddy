@@ -1,4 +1,38 @@
 /*
+ * =========================================================================================
+ * TINY ARC BUDDY - EDUCATIONAL EMBEDDED PLATFORM
+ * =========================================================================================
+ * * Copyright (c) 2026 Andreas Kucher
+ * * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * * -----------------------------------------------------------------------------------------
+ * ACKNOWLEDGMENTS & DISCLAIMER
+ * -----------------------------------------------------------------------------------------
+ * This project was designed for STEM education workshops.
+ * * Core hardware architecture derived from:
+ * "Tiny Arcade Game (ATtiny85)" - Instructables
+ * * Hardware support via:
+ * ATTinyCore by Spence Konde (https://github.com/SpenceKonde/ATTinyCore)
+ * * Disclaimer: The software payloads in this repository were heavily optimized 
+ * for ATtiny85 SRAM/Flash constraints with the assistance of AI (Google Gemini). 
+ * They have not undergone exhaustive edge-case testing. Use for educational purposes.
+ * =========================================================================================
+ */
+
+/*
  * ==============================================================================
  * TINY ARC BUDDY - SPACE INVADERS (DELUXE EDITION)
  * ==============================================================================
@@ -24,7 +58,7 @@
 
 // --- Custom Events ---
 #define POWERUP_CHANCE 5             // 5% chance an alien drops an extra life!
-#define UFO_CHANCE 2                 // Chance a UFO appears at the top of the screen
+#define UFO_CHANCE 5                 // Chance a UFO appears at the top of the screen
 
 // --- Music Studio (Frequencies in Hz, Tempo in ms) ---
 // Older students: Show the girls a Piano Frequency chart! (e.g. 440 = A4)
@@ -37,7 +71,7 @@ const int gameOverTempo[]  PROGMEM = { 300, 300, 300, 600 };
 // --- Global Game Pacing ---
 #define GAME_FPS 30                  
 #define SHIP_SPEED 2                 
-#define LASER_SPEED 2                
+#define LASER_SPEED 5                
 #define ALIEN_BASE_SPEED 5           
 #define ALIEN_SLOW_FACTOR 1          
 #define BOMB_CHANCE 2                
@@ -313,6 +347,7 @@ void loop() {
     drawSprite(16, 3, alienA_frame1, 8, false);
     drawSprite(104, 3, alienA_frame2, 8, false);
     drawLargeSprite(48, 2, htl_logo, 32, 4); 
+    drawString(25, 7, "SPACE INVADERS");
     
     delay(3000); 
     gameState = 1; 
