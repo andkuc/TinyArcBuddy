@@ -177,31 +177,62 @@ void drawString(uint8_t x, uint8_t page, const char* str) {
 }
 
 void drawInt(uint8_t x, uint8_t page, int val) {
-  char str[6]; itoa(val, str, 10); drawString(x, page, str);
+  char str[10]; 
+  itoa(val, str, 10); 
+  
+  // Pro-Trick: Append two blank spaces to erase leftover ghost digits
+  uint8_t i = 0;
+  while (str[i] != '\0') i++; // Find the end of the number
+  str[i] = ' ';               // Wipe space 1
+  str[i+1] = ' ';             // Wipe space 2
+  str[i+2] = '\0';            // Close string
+  
+  drawString(x, page, str);
 }
 
 void drawUI() {
-  drawInt(0, 0, score);
-  drawString(95, 0, "L:"); drawInt(110, 0, lives);
+  // Moved right to X=10 to safely avoid top-left wall bounces!
+  drawString(10, 0, "SCORE:");
+  drawInt(50, 0, score);
+  
+  drawString(95, 0, "L:"); 
+  drawInt(110, 0, lives);
 }
 
-void drawSprite(int x, uint8_t page, const uint8_t* sprite, uint8_t width, bool eraseSides = false) {
+void drawSprite(int x, uint8_t page, const uint8_t* sprite, uint8_t width, uint8_t eraseWidth = 0) {
   if (x < 0 || x > 127) return; 
   int startX = x;
-  if (eraseSides) { if (startX >= 2) startX -= 2; else startX = 0; }
+  
+  // Shift the starting cursor back by the exact speed of the paddle
+  if (eraseWidth > 0) { 
+    if (startX >= eraseWidth) startX -= eraseWidth; 
+    else startX = 0; 
+  }
   
   oled_set_cursor(startX, page);
   PORTB |= (1 << OLED_SCL) | (1 << OLED_SDA);
   PORTB &= ~(1 << OLED_SDA); PORTB &= ~(1 << OLED_SCL);
   i2c_write(0x78); i2c_write(0x40);
   
-  if (eraseSides) { i2c_write(0); i2c_write(0); }
-  if (sprite != NULL) {
-    for(uint8_t i=0; i<width; i++) { if (startX + i <= 127) i2c_write(pgm_read_byte(&sprite[i])); }
-  } else {
-    for(uint8_t i=0; i<width; i++) i2c_write(0x00); 
+  // Write blank columns to erase the left-side trail
+  for(uint8_t i = 0; i < eraseWidth; i++) {
+    i2c_write(0x00);
   }
-  if (eraseSides) { i2c_write(0); i2c_write(0); }
+  
+  // Draw the actual sprite
+  if (sprite != NULL) {
+    for(uint8_t i = 0; i < width; i++) { 
+      if (startX + eraseWidth + i <= 127) i2c_write(pgm_read_byte(&sprite[i])); 
+    }
+  } else {
+    for(uint8_t i = 0; i < width; i++) i2c_write(0x00); 
+  }
+  
+  // Write blank columns to erase the right-side trail
+  for(uint8_t i = 0; i < eraseWidth; i++) {
+    i2c_write(0x00);
+  }
+  
   PORTB &= ~(1 << OLED_SDA); PORTB |= (1 << OLED_SCL) | (1 << OLED_SDA);
 }
 
@@ -324,12 +355,15 @@ void loop() {
   }
 
   // STATE 1: CREDITS & HIGH SCORE
-  if (gameState == 1) {
+if (gameState == 1) {
     oled_clear();
     drawString(3, 0, "GIRLS' DAY"); drawString(3, 1, "@ HTL KAINDORF");
     drawString(3, 3, "BUILT BY:"); drawString(60, 3, PLAYER_NAME); 
     drawString(3, 4, "ON "); drawString(25, 4, BUILD_DATE);  
-    drawString(3, 6, "HIGH SCORE:"); drawInt(75, 6, highScore);
+    
+    // Shifted right slightly
+    drawString(10, 6, "HI-SCORE:"); 
+    drawInt(70, 6, highScore);
     
     while(!readFire()) { /* Wait */ }
     beep(1000, 100);
@@ -365,7 +399,7 @@ void loop() {
     }
     
     const uint8_t* pSprite = (paddleMode == 1) ? custom_paddle_wide : custom_paddle;
-    drawSprite(paddleX, 7, pSprite, pW, true); 
+    drawSprite(paddleX, 7, pSprite, pW, PADDLE_SPEED);
 
     // --- Mod Timers ---
     if (paddleMode == 1) {
